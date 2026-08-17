@@ -21,23 +21,23 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shellcheck desktop-file-utils
 
       - name: Python syntax check
-        run: python3 -m py_compile chrome-mullvad-tray.py test_tray_status.py
+        run: python3 -m py_compile src/chrome-mullvad-tray.py tests/test_tray_status.py
 
       - name: Run unit tests
-        run: python3 -m unittest -v test_tray_status.py
+        run: python3 -m unittest -v tests/test_tray_status.py
 
       - name: Shell syntax check
         run: |
-          bash -n toggle-chrome-mullvad
-          bash -n check-ip
-          bash -n setup-split-nat
+          bash -n src/toggle-chrome-mullvad
+          bash -n src/check-ip
+          bash -n src/setup-split-nat
           bash -n install.sh
           bash -n uninstall.sh
 
       - name: Shellcheck
-        run: shellcheck toggle-chrome-mullvad check-ip setup-split-nat install.sh uninstall.sh || true
+        run: shellcheck src/toggle-chrome-mullvad src/check-ip src/setup-split-nat install.sh uninstall.sh || true
 
       - name: Desktop file validation
         run: |
-          desktop-file-validate chrome-mullvad-tray.desktop
-          desktop-file-validate toggle-chrome-mullvad.desktop
+          desktop-file-validate desktop/chrome-mullvad-tray.desktop
+          desktop-file-validate desktop/toggle-chrome-mullvad.desktop

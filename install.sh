@@ -232,7 +232,7 @@ applications_dir=$data_home/applications
 autostart_dir=$config_home/autostart
 
 install -d "$install_dir/icons" "$config_dir" "$applications_dir" "$autostart_dir" "$bin_home"
-install -m 755 "$base/check-ip" "$base/chrome-mullvad-tray.py" "$base/toggle-chrome-mullvad" "$install_dir/"
+install -m 755 "$base/src/check-ip" "$base/src/chrome-mullvad-tray.py" "$base/src/toggle-chrome-mullvad" "$install_dir/"
 install -m 644 "$base/icons/"*.svg "$install_dir/icons/"
 printf 'BROWSER_COMMAND=%s\nBROWSER_PROCESS=%s\n' "$browser_command" "$browser_process" > "$config_dir/config"
 chmod 600 "$config_dir/config"
@@ -291,7 +291,7 @@ fi
 
 if [ "$nat_mode" = on ]; then
     command -v nft >/dev/null || { echo "nft is required for the NAT workaround" >&2; exit 1; }
-    sudo install -D -m 755 "$base/setup-split-nat" /usr/local/libexec/chrome-mullvad-toggle/setup-split-nat
+    sudo install -D -m 755 "$base/src/setup-split-nat" /usr/local/libexec/chrome-mullvad-toggle/setup-split-nat
     sudo install -m 644 "$base/systemd/chrome-split-nat.service" /etc/systemd/system/chrome-split-nat.service
     sudo install -m 644 "$base/systemd/chrome-split-nat.timer" /etc/systemd/system/chrome-split-nat.timer
     sudo systemctl daemon-reload

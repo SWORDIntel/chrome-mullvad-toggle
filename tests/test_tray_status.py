@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-MODULE_PATH = Path(__file__).with_name("chrome-mullvad-tray.py")
+MODULE_PATH = Path(__file__).resolve().parent.parent / "src" / "chrome-mullvad-tray.py"
 SPEC = importlib.util.spec_from_file_location("chrome_mullvad_tray", MODULE_PATH)
 if SPEC is None or SPEC.loader is None:
     raise RuntimeError(f"Unable to load {MODULE_PATH}")

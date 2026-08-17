@@ -168,16 +168,21 @@ sudo apk add py3-gobject3 libayatana-appindicator libnotify iproute2
 
 ```
 chrome-mullvad-toggle/
-├── chrome-mullvad-tray.py       # GTK3 + Ayatana tray indicator
-├── toggle-chrome-mullvad        # Toggle script (the actual switch)
-├── check-ip                     # Opens Mullvad's connection check
-├── setup-split-nat              # NAT workaround (runs as root)
-├── install.sh                   # The installer
-├── uninstall.sh                 # The uninstaller
-├── systemd/                     # Timer + service for NAT workaround
-├── icons/                       # SVG status icons (green/red/amber/gray)
-├── test_tray_status.py          # Unit tests for status logic
-└── .github/workflows/test.yml   # CI: syntax, tests, shellcheck, desktop validation
+├── src/
+│   ├── chrome-mullvad-tray.py       # GTK3 + Ayatana tray indicator
+│   ├── toggle-chrome-mullvad        # Toggle script (the actual switch)
+│   ├── check-ip                     # Opens Mullvad's connection check
+│   └── setup-split-nat              # NAT workaround (runs as root)
+├── desktop/
+│   ├── chrome-mullvad-tray.desktop  # Autostart entry
+│   └── toggle-chrome-mullvad.desktop# Application menu shortcut
+├── systemd/                         # Timer + service for NAT workaround
+├── icons/                           # SVG status icons (green/red/amber/gray)
+├── tests/
+│   └── test_tray_status.py          # Unit tests for status logic
+├── install.sh                       # The installer
+├── uninstall.sh                     # The uninstaller
+└── .github/workflows/test.yml       # CI: syntax, tests, shellcheck, desktop validation
 ```
 
 ## 📄 License
