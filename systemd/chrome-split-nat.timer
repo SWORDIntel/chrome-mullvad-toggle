@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh NAT for Mullvad-excluded Chrome traffic
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=1min
+Unit=chrome-split-nat.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# qlearn / codebase intelligence
+.qlearn/
+.learn/
+.codegraph/
+memory-bank/
+*.qdb
+
+# Secrets and credentials
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.env
+.env
+.env.*
+*secret*
+*credential*
+*password*
+*token*
+wireguard/
+*.conf
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Toggle Chrome Mullvad
+GenericName=Browser VPN Toggle
+Comment=Toggle the running browser between Mullvad and the normal connection
+Exec=chrome-mullvad-toggle
+StartupNotify=false
+Terminal=false
+Icon=chrome-vpn-green
+Type=Application
+Categories=Network;WebBrowser;

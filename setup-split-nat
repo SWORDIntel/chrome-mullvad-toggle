@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mullvad_interface=${MULLVAD_INTERFACE:-wg0-mullvad}
+
+for _ in $(seq 1 30); do
+    source_ip=$(ip -4 -o address show dev "$mullvad_interface" 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -1)
+    egress_interface=$(ip -4 route show table main default 2>/dev/null | awk '{for (i=1; i<=NF; i++) if ($i == "dev" && i < NF) {print $(i+1); exit}}')
+    [ -n "${source_ip:-}" ] && [ -n "${egress_interface:-}" ] && break
+    sleep 1
+done
+
+[ -n "${source_ip:-}" ]
+[ -n "${egress_interface:-}" ]
+
+rules=$(nft list table inet chrome-split 2>/dev/null || true)
+case "$rules" in
+    *"oifname \"$egress_interface\" ip saddr $source_ip"*) exit 0 ;;
+esac
+
+nft delete table inet chrome-split 2>/dev/null || true
+nft add table inet chrome-split
+nft 'add chain inet chrome-split postrouting { type nat hook postrouting priority srcnat - 1; policy accept; }'
+nft add rule inet chrome-split postrouting "oifname \"$egress_interface\" ip saddr $source_ip counter masquerade"

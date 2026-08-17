@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+config_dir=${XDG_CONFIG_HOME:-$HOME/.config}/chrome-mullvad-toggle
+config_file=$config_dir/config
+checker="https://am.i.mullvad.net/?$(date +%s)"
+browser_command=""
+browser_process=""
+
+if [ -r "$config_file" ]; then
+    while IFS='=' read -r key value; do
+        case "$key" in
+            BROWSER_COMMAND) browser_command=$value ;;
+            BROWSER_PROCESS) browser_process=$value ;;
+        esac
+    done < "$config_file"
+fi
+
+if [ ! -x "$browser_command" ]; then
+    for candidate in google-chrome-stable google-chrome chromium chromium-browser; do
+        candidate_path=$(command -v "$candidate" 2>/dev/null || true)
+        if [ -n "$candidate_path" ]; then
+            browser_command=$candidate_path
+            break
+        fi
+    done
+fi
+
+if [ ! -x "$browser_command" ]; then
+    notify-send "Chrome Mullvad Toggle" "No supported Chrome or Chromium executable was found" 2>/dev/null || true
+    exit 1
+fi
+
+if [ ! -x "$browser_process" ]; then
+    resolved=$(readlink -f "$browser_command")
+    if [ -x "$(dirname "$resolved")/chrome" ]; then
+        browser_process=$(readlink -f "$(dirname "$resolved")/chrome")
+    else
+        browser_process=$resolved
+    fi
+fi
+
+mapfile -t chrome_pids < <(
+    for proc in /proc/[0-9]*; do
+        pid=${proc##*/}
+        exe=$(readlink -f "$proc/exe" 2>/dev/null || true)
+        [ "$exe" = "$browser_process" ] && printf '%s\n' "$pid"
+    done
+)
+
+notify() {
+    notify-send "Chrome Mullvad Toggle" "$1" 2>/dev/null || true
+}
+
+if [ ${#chrome_pids[@]} -eq 0 ]; then
+    notify "Launching browser outside Mullvad"
+    exec mullvad-exclude "$browser_command" "$checker"
+fi
+
+mapfile -t excluded < <(mullvad split-tunnel list | awk '/^[[:space:]]*[0-9]+/ {print $1}')
+declare -A excluded_pid=()
+for pid in "${excluded[@]}"; do
+    excluded_pid[$pid]=1
+done
+
+outside=false
+for pid in "${chrome_pids[@]}"; do
+    if [ "${excluded_pid[$pid]:-}" = 1 ] || awk -F: '$2 == "net_cls" && $3 == "/mullvad-exclusions" {found=1} END {exit !found}' "/proc/$pid/cgroup" 2>/dev/null; then
+        outside=true
+        break
+    fi
+done
+
+if $outside; then
+    for pid in "${chrome_pids[@]}"; do
+        mullvad split-tunnel delete "$pid" 2>/dev/null || true
+    done
+    notify "Browser now uses Mullvad"
+else
+    for pid in "${chrome_pids[@]}"; do
+        mullvad split-tunnel add "$pid" 2>/dev/null || true
+    done
+    notify "Browser now bypasses Mullvad"
+fi
+
+"$browser_command" --new-tab "$checker" >/dev/null 2>&1 &

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+config_file=${XDG_CONFIG_HOME:-$HOME/.config}/chrome-mullvad-toggle/config
+browser_command=""
+if [ -r "$config_file" ]; then
+    while IFS='=' read -r key value; do
+        [ "$key" = BROWSER_COMMAND ] && browser_command=$value
+    done < "$config_file"
+fi
+
+if [ ! -x "$browser_command" ]; then
+    for candidate in google-chrome-stable google-chrome chromium chromium-browser; do
+        candidate_path=$(command -v "$candidate" 2>/dev/null || true)
+        if [ -n "$candidate_path" ]; then
+            browser_command=$candidate_path
+            break
+        fi
+    done
+fi
+
+[ -x "$browser_command" ]
+exec "$browser_command" --new-tab "https://mullvad.net/en/check?$(date +%s)"

@@ -1,0 +1,8 @@
+[Unit]
+Description=NAT workaround for Mullvad-excluded browser traffic
+After=network-online.target mullvad-daemon.service
+Wants=network-online.target mullvad-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/chrome-mullvad-toggle/setup-split-nat

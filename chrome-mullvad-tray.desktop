@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Chrome Mullvad Status
+Comment=Show browser Mullvad routing status in the system tray
+Exec=chrome-mullvad-tray.py
+Icon=chrome-vpn-red
+Terminal=false
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
