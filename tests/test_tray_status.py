@@ -1,9 +1,22 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
+import types
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+
+# Stub out gi and its repositories so the tray module can be imported
+# in environments where PyGObject is not installed (e.g. CI runners).
+if "gi" not in sys.modules:
+    gi_stub = types.ModuleType("gi")
+    gi_stub.require_version = lambda *a, **k: None
+    repository_stub = types.ModuleType("gi.repository")
+    for name in ("Gtk", "GLib", "AyatanaAppIndicator3"):
+        setattr(repository_stub, name, types.ModuleType(name))
+    sys.modules["gi"] = gi_stub
+    sys.modules["gi.repository"] = repository_stub
 
 MODULE_PATH = Path(__file__).resolve().parent.parent / "src" / "chrome-mullvad-tray.py"
 SPEC = importlib.util.spec_from_file_location("chrome_mullvad_tray", MODULE_PATH)
